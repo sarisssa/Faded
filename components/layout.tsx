@@ -36,7 +36,9 @@ const LayoutContent = ({ children }: ILayoutContentProps) => {
       <h1>FADED</h1>
       {!allPlayers.length && !isInErrorState && <p>Loading...</p>}
       {allPlayers.length && !isInErrorState && (
-        <SearchBar allPlayers={allPlayers} />
+        <>
+          <SearchBar allPlayers={allPlayers} />
+        </>
       )}
       {isInErrorState && <p>Error while retrieving players</p>}
       <main>{children}</main>

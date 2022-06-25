@@ -2,7 +2,7 @@ export interface ISeasonAverage {
   games_played: number;
   player_id: number;
   season: number;
-  min: string;
+  min: number;
   fgm: number;
   fga: number;
   fg3m: number;
