@@ -9,10 +9,6 @@ import { ISeasonAverage } from "../../interfaces/entities/ISeasonAverage";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const playerId = context.query.id;
-  // const startYear = context.query.startYear
-  //   ? +context.query.startYear
-  //   : undefined;
-  // const endYear = context.query.endYear ? +context.query.endYear : undefined;
 
   let seasonAverages: ISeasonAverage[] = [];
   if (!playerId) {
@@ -67,7 +63,28 @@ const PlayerDetails = ({
       ? overridenSeasonAverages
       : seasonAverages;
 
-  const years = getYears();
+  const selectableYears = getYears();
+  const shownYears = getYears(startYear, endYear);
+
+  shownYears.forEach((year) => {
+    if (!chartSeasonAverages.find((x) => x.season === year)) {
+      chartSeasonAverages.push({
+        season: year,
+        pts: 0,
+        ast: 0,
+        min: 0,
+        blk: 0,
+        games_played: 0,
+        reb: 0,
+      } as ISeasonAverage);
+    }
+  });
+
+  chartSeasonAverages.sort((a, b) => a.season - b.season);
+
+  // years.forEach((year, i) => {
+  //   if (chartSeasonAverages.)
+  // });
 
   return (
     <>
@@ -81,7 +98,7 @@ const PlayerDetails = ({
           MenuProps={{ style: { maxHeight: 200 } }}
           onChange={(e) => setStartYear(+e.target.value)}
         >
-          {years.map((year) => (
+          {selectableYears.map((year) => (
             <MenuItem value={year}>{year}</MenuItem>
           ))}
         </Select>
@@ -96,13 +113,13 @@ const PlayerDetails = ({
           MenuProps={{ style: { maxHeight: 200 } }}
           onChange={(e) => setEndYear(+e.target.value)}
         >
-          {years.map((year) => (
+          {selectableYears.map((year) => (
             <MenuItem value={year}>{year}</MenuItem>
           ))}
         </Select>
       </FormControl>
       <LineChart
-        seasons={chartSeasonAverages.map((x) => x.season)}
+        seasons={shownYears}
         stats={statsToShow.map((stat) => ({
           label: stat.stat,
           data: chartSeasonAverages.map((x) => x[stat.stat]),
