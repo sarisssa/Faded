@@ -33,7 +33,7 @@ export default function SearchBar({ allPlayers }: ISearchBarProps) {
       options={allPlayers}
       getOptionLabel={(player) => player.name}
       groupBy={(player) => player.name[0].toUpperCase()}
-      renderInput={(params) => <TextField {...params} label="10,000 options" />}
+      renderInput={(params) => <TextField {...params} label="Choose Player" />}
       renderOption={((props: any, option: any) => [props, option]) as any}
       renderGroup={(params) => params as any}
     />

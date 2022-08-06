@@ -6,7 +6,11 @@ export default async function getSeasonAveragesOfPlayers(
   res: NextApiResponse
 ) {
   try {
-    const seasonAverages = await getSeasonAverages(+req.query.playerId);
+    const seasonAverages = await getSeasonAverages(
+      +req.query.playerId, // + sign to cast string into number
+      +req.query.startYear || undefined,
+      +req.query.endYear || undefined
+    );
     res.status(200).json(seasonAverages);
   } catch (e) {
     if (e instanceof Error && e.message === "Too many balldontlie requests") {

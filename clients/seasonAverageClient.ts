@@ -6,11 +6,20 @@ import { ISeasonAverage } from "@/interfaces/entities/ISeasonAverage";
  * @param playerId The player you want to fetch the season averages of
  */
 export async function getSeasonAverages(
-  playerId: number
+  playerId: number,
+  startYear?: number,
+  endYear?: number
 ): Promise<ISeasonAverage[]> {
-  const response = await fetch(
-    `http://localhost:3000/api/season-averages?playerId=${playerId}`
-  );
+  const endpointUrl = new URL("http://localhost:3000/api/season-averages");
+  endpointUrl.searchParams.append("playerId", playerId.toString());
+  if (startYear) {
+    endpointUrl.searchParams.append("startYear", startYear.toString());
+  }
+  if (endYear) {
+    endpointUrl.searchParams.append("endYear", endYear.toString());
+  }
+
+  const response = await fetch(endpointUrl.toString());
 
   if (
     response.status === 500 &&
