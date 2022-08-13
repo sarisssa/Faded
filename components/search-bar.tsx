@@ -18,14 +18,33 @@ interface ISearchBarProps {
 
 export default function SearchBar({ allPlayers }: ISearchBarProps) {
   const router = useRouter();
-  // const [setSelectedPlayerId] = useFadedStore((x) => [x.setSelectedPlayerId]);
+
+  const compareAgainst =
+    typeof router.query.compareAgainst === "string"
+      ? [router.query.compareAgainst]
+      : router.query.compareAgainst;
+
+  const players = allPlayers.filter(
+    (x) =>
+      x.id === +(router.query.id ?? 0) ||
+      (compareAgainst && compareAgainst.includes(String(x.id)))
+  );
 
   return (
     <Autocomplete
-      onChange={(_, player) => {
-        if (player) {
-          router.push(`/players/${player.id}`);
-          // setSelectedPlayerId(player.id);
+      onChange={(_, players) => {
+        if (players && players[0]) {
+          const firstPlayer =
+            players.find((x) => x.id === +(router.query.id ?? 0)) ?? players[0];
+
+          const comparedPlayers = players.filter(
+            (x) => x.id !== firstPlayer.id
+          );
+
+          router.push({
+            pathname: `/players/${firstPlayer.id}`,
+            query: { compareAgainst: comparedPlayers.map((x) => x.id) },
+          });
         }
       }}
       id="player"
@@ -34,12 +53,13 @@ export default function SearchBar({ allPlayers }: ISearchBarProps) {
       PopperComponent={StyledPopper}
       ListboxComponent={ListboxComponent as any}
       options={allPlayers}
-      getOptionLabel={(player) => player.name}
-      groupBy={(player) => player.name[0].toUpperCase()}
+      getOptionLabel={(player) => player?.name ?? "Unknown"}
+      groupBy={(player) => player?.name[0]?.toUpperCase() ?? "Unknown"}
       renderInput={(params) => <TextField {...params} label="Choose Player" />}
       renderOption={((props: any, option: any) => [props, option]) as any}
       renderGroup={(params) => params as any}
-      value={allPlayers.find((x) => x.id === +(router.query.id ?? 0))}
+      value={players}
+      multiple={true}
     />
   );
 }

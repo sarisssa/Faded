@@ -1,11 +1,8 @@
-import { ISeasonAverage } from "../entities/ISeasonAverage";
-
 export interface ILineChartProps {
   seasons: number[];
   stats: {
-    label: keyof ISeasonAverage;
+    label: string;
     data: number[];
-    hidden: boolean;
     lineColor: string;
   }[];
 }

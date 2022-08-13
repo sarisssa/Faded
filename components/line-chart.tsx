@@ -24,13 +24,25 @@ ChartJS.register(
 
 export const options = {
   responsive: true,
+  interaction: {
+    mode: "index" as const,
+    intersect: false,
+  },
+  stacked: false,
   plugins: {
     legend: {
       position: "top" as const,
     },
     title: {
       display: true,
-      text: "Chart.js Line Chart",
+      text: "Season averages",
+    },
+  },
+  scales: {
+    y: {
+      type: "linear" as const,
+      display: true,
+      position: "left" as const,
     },
   },
 };
@@ -51,7 +63,6 @@ function convertToLineData(props: ILineChartProps): ChartData<"line"> {
       backgroundColor: x.lineColor,
       tension: 0.1,
       pointRadius: 7,
-      hidden: x.hidden,
     })),
   };
 }
