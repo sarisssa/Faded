@@ -9,6 +9,7 @@ import { useRouter } from "next/router";
 import PropTypes from "prop-types";
 import * as React from "react";
 import { VariableSizeList } from "react-window";
+// import { useFadedStore } from "store/store";
 import { IEssentialPlayerData } from "../interfaces/props/ISearchBarProps";
 
 interface ISearchBarProps {
@@ -17,12 +18,14 @@ interface ISearchBarProps {
 
 export default function SearchBar({ allPlayers }: ISearchBarProps) {
   const router = useRouter();
+  // const [setSelectedPlayerId] = useFadedStore((x) => [x.setSelectedPlayerId]);
 
   return (
     <Autocomplete
       onChange={(_, player) => {
         if (player) {
           router.push(`/players/${player.id}`);
+          // setSelectedPlayerId(player.id);
         }
       }}
       id="player"
@@ -36,6 +39,7 @@ export default function SearchBar({ allPlayers }: ISearchBarProps) {
       renderInput={(params) => <TextField {...params} label="Choose Player" />}
       renderOption={((props: any, option: any) => [props, option]) as any}
       renderGroup={(params) => params as any}
+      value={allPlayers.find((x) => x.id === +(router.query.id ?? 0))}
     />
   );
 }
@@ -43,7 +47,6 @@ export default function SearchBar({ allPlayers }: ISearchBarProps) {
 const LISTBOX_PADDING = 8; // px
 
 function renderRow(props: any) {
-  console.log(props);
   const { data, index, style } = props;
   const dataSet = data[index];
   const inlineStyle = {
@@ -148,17 +151,17 @@ ListboxComponent.propTypes = {
   children: PropTypes.node,
 };
 
-function random(length: number) {
-  const characters =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let result = "";
+// function random(length: number) {
+//   const characters =
+//     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+//   let result = "";
 
-  for (let i = 0; i < length; i += 1) {
-    result += characters.charAt(Math.floor(Math.random() * characters.length));
-  }
+//   for (let i = 0; i < length; i += 1) {
+//     result += characters.charAt(Math.floor(Math.random() * characters.length));
+//   }
 
-  return result;
-}
+//   return result;
+// }
 
 const StyledPopper = styled(Popper)({
   [`& .${autocompleteClasses.listbox}`]: {

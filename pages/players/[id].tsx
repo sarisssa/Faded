@@ -7,6 +7,15 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { ISeasonAverage } from "../../interfaces/entities/ISeasonAverage";
 
+const statsToShow: ILineConfiguration[] = [
+  { stat: "ast", disabled: true, lineColor: "rgb(255, 99, 132)" },
+  { stat: "pts", disabled: false, lineColor: "rgb(255, 99, 132)" },
+  { stat: "min", disabled: true, lineColor: "rgb(255, 99, 132)" },
+  { stat: "blk", disabled: true, lineColor: "rgb(255, 99, 132)" },
+  { stat: "games_played", disabled: true, lineColor: "rgb(255, 99, 132)" },
+  { stat: "reb", disabled: true, lineColor: "rgb(255, 99, 132)" },
+];
+
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const playerId = context.query.id;
 
@@ -31,15 +40,6 @@ const PlayerDetails = ({
 }) => {
   const router = useRouter();
 
-  const statsToShow: ILineConfiguration[] = [
-    { stat: "ast", disabled: true, lineColor: "rgb(255, 99, 132)" },
-    { stat: "pts", disabled: false, lineColor: "rgb(255, 99, 132)" },
-    { stat: "min", disabled: true, lineColor: "rgb(255, 99, 132)" },
-    { stat: "blk", disabled: true, lineColor: "rgb(255, 99, 132)" },
-    { stat: "games_played", disabled: true, lineColor: "rgb(255, 99, 132)" },
-    { stat: "reb", disabled: true, lineColor: "rgb(255, 99, 132)" },
-  ];
-
   const [startYear, setStartYear] = useState(new Date().getFullYear() - 6);
   const [endYear, setEndYear] = useState(new Date().getFullYear() - 1);
   const [overridenSeasonAverages, setOverridenSeasonAverages] = useState<
@@ -56,7 +56,7 @@ const PlayerDetails = ({
     };
 
     fetchNewSeasonAverages();
-  }, [startYear, endYear]);
+  }, [startYear, endYear, router.query.id]);
 
   const chartSeasonAverages =
     overridenSeasonAverages.length > 0
@@ -82,10 +82,6 @@ const PlayerDetails = ({
 
   chartSeasonAverages.sort((a, b) => a.season - b.season);
 
-  // years.forEach((year, i) => {
-  //   if (chartSeasonAverages.)
-  // });
-
   return (
     <>
       <FormControl size="small">
@@ -99,7 +95,9 @@ const PlayerDetails = ({
           onChange={(e) => setStartYear(+e.target.value)}
         >
           {selectableYears.map((year) => (
-            <MenuItem value={year}>{year}</MenuItem>
+            <MenuItem key={year} value={year}>
+              {year}
+            </MenuItem>
           ))}
         </Select>
       </FormControl>
@@ -114,7 +112,9 @@ const PlayerDetails = ({
           onChange={(e) => setEndYear(+e.target.value)}
         >
           {selectableYears.map((year) => (
-            <MenuItem value={year}>{year}</MenuItem>
+            <MenuItem key={year} value={year}>
+              {year}
+            </MenuItem>
           ))}
         </Select>
       </FormControl>
@@ -140,3 +140,5 @@ function getYears(startYear = 1970, endYear = new Date().getFullYear()) {
   }
   return years;
 }
+
+//Graph does not change on player change

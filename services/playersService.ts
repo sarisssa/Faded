@@ -26,7 +26,6 @@ export const fetchAllPlayers = async () => {
           if (res.status === 429) {
             throw new Error("Too many balldontlie requests");
           }
-
           return res.json();
         }) // Functionality of parse within json method
         .then((res: IGetPlayersResponse) => res.data)
