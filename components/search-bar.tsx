@@ -41,10 +41,16 @@ export default function SearchBar({ allPlayers }: ISearchBarProps) {
             (x) => x.id !== firstPlayer.id
           );
 
-          router.push({
-            pathname: `/players/${firstPlayer.id}`,
-            query: { compareAgainst: comparedPlayers.map((x) => x.id) },
-          });
+          router.push(
+            {
+              pathname: `/players/${firstPlayer.id}`,
+              query: { compareAgainst: comparedPlayers.map((x) => x.id) },
+            },
+            undefined,
+            { shallow: true }
+          );
+        } else {
+          router.push("/players", undefined, { shallow: true });
         }
       }}
       id="player"
@@ -170,18 +176,6 @@ const ListboxComponent = React.forwardRef(function ListboxComponent(
 ListboxComponent.propTypes = {
   children: PropTypes.node,
 };
-
-// function random(length: number) {
-//   const characters =
-//     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-//   let result = "";
-
-//   for (let i = 0; i < length; i += 1) {
-//     result += characters.charAt(Math.floor(Math.random() * characters.length));
-//   }
-
-//   return result;
-// }
 
 const StyledPopper = styled(Popper)({
   [`& .${autocompleteClasses.listbox}`]: {

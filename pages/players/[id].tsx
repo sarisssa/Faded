@@ -1,21 +1,34 @@
 import LineChart from "@/components/line-chart";
-import { ILineConfiguration } from "@/interfaces/props/ILineConfiguration";
+import { ISeasonAveragesWithName } from "@/interfaces/entities/ISeasonAveragesWithName";
 import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 import { getSeasonAverages } from "clients/seasonAverageClient";
+import useDidMountEffect from "hooks/useDidMountEffect";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ISeasonAverage } from "../../interfaces/entities/ISeasonAverage";
 
-const statsToShow: ILineConfiguration[] = [
-  { stat: "ast", disabled: true, lineColor: "rgb(255, 99, 132)" },
-  { stat: "pts", disabled: false, lineColor: "rgb(255, 99, 132)" },
-  { stat: "min", disabled: true, lineColor: "rgb(255, 99, 132)" },
-  { stat: "blk", disabled: true, lineColor: "rgb(255, 99, 132)" },
-  { stat: "games_played", disabled: true, lineColor: "rgb(255, 99, 132)" },
-  { stat: "reb", disabled: true, lineColor: "rgb(255, 99, 132)" },
-];
+// const statsToShow: ILineConfiguration[] = [
+//   { stat: "ast", disabled: true, lineColor: "rgb(255, 99, 132)" },
+//   { stat: "pts", disabled: false, lineColor: "rgb(255, 99, 132)" },
+//   { stat: "min", disabled: true, lineColor: "rgb(255, 99, 132)" },
+//   { stat: "blk", disabled: true, lineColor: "rgb(255, 99, 132)" },
+//   { stat: "games_played", disabled: true, lineColor: "rgb(255, 99, 132)" },
+//   { stat: "reb", disabled: true, lineColor: "rgb(255, 99, 132)" },
+// ];
 
+const colors = [
+  "rgb(255, 99, 132)",
+  "#1f399d",
+  "#53dd1c",
+  "#94162e",
+  "#4193ec",
+  "#a25fc6",
+  "#24ecc4",
+  "#c9bfe6",
+  "#281df2",
+  "#da09a0",
+];
 const getAllSeasonAverages = async (
   playerIds: number[],
   startYear?: number,
@@ -57,51 +70,50 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 const PlayerDetails = ({
   seasonAverages,
 }: {
-  seasonAverages: ISeasonAverage[][];
+  seasonAverages: ISeasonAveragesWithName[];
 }) => {
   const router = useRouter();
 
+  const [selectedPlayers, setSelectedPlayers] = useState<string[]>([]);
   const [startYear, setStartYear] = useState(new Date().getFullYear() - 6);
   const [endYear, setEndYear] = useState(new Date().getFullYear() - 1);
   const [overridenSeasonAverages, setOverridenSeasonAverages] = useState<
-    ISeasonAverage[][]
+    ISeasonAveragesWithName[]
   >([]);
 
-  useEffect(() => {
+  useDidMountEffect(() => {
     const fetchNewSeasonAverages = async () => {
       if (!router.query.id) return;
 
-      // promises.push(getSeasonAverages(+router.query.id, startYear, endYear));
-      // if (router.query.compareAgainst) {
-      //   if (typeof router.query.compareAgainst === "string") {
-      //     promises.push(
-      //       getSeasonAverages(+router.query.compareAgainst, startYear, endYear)
-      //     );
-      //   } else {
-      //     router.query.compareAgainst.forEach((id: string) => {
-      //       promises.push(getSeasonAverages(+id, startYear, endYear));
-      //     });
-      //   }
-      // }
+      const newPlayers = [router.query.id, router.query.compareAgainst]
+        .filter((x) => x)
+        .flat() as string[];
 
-      const playerIds = getPlayerIdsFromQuery([
-        router.query.id,
-        router.query.compareAgainst,
-      ]);
+      setSelectedPlayers(newPlayers);
 
-      const newSeasonAverages = await getAllSeasonAverages(
+      if (newPlayers.length < selectedPlayers.length) {
+        const newSeasonAverages = overridenSeasonAverages.filter((x) =>
+          newPlayers.includes(String(x.seasonAverages[0].player_id))
+        );
+        setOverridenSeasonAverages(newSeasonAverages);
+        return;
+      }
+
+      const playerIds = getPlayerIdsFromQuery(newPlayers);
+
+      const seasonAveragesWithName = await getAllSeasonAverages(
         playerIds,
         startYear,
         endYear
       );
 
-      setOverridenSeasonAverages(newSeasonAverages);
+      setOverridenSeasonAverages(seasonAveragesWithName);
     };
 
     fetchNewSeasonAverages();
   }, [startYear, endYear, router.query.id, router.query.compareAgainst]);
 
-  const chartSeasonAverages =
+  const chartSeasonAveragesWithName =
     overridenSeasonAverages.length > 0
       ? overridenSeasonAverages
       : seasonAverages;
@@ -109,21 +121,24 @@ const PlayerDetails = ({
   const selectableYears = getYears();
   const shownYears = getYears(startYear, endYear);
 
-  // shownYears.forEach((year) => {
-  //   if (!chartSeasonAverages.flat().find((x) => x.season === year)) {
-  //     chartSeasonAverages.push([{
-  //       season: year,
-  //       pts: 0,
-  //       ast: 0,
-  //       min: 0,
-  //       blk: 0,
-  //       games_played: 0,
-  //       reb: 0,
-  //     }] as ISeasonAverage[]);
-  //   }
-  // });
+  shownYears.forEach((year) => {
+    // Iterate through each player and push a block of empty stats if the player was absent that season
+    chartSeasonAveragesWithName.forEach(({ seasonAverages }) => {
+      if (!seasonAverages.find((x) => x.season === year)) {
+        seasonAverages.push({
+          season: year,
+          pts: 0,
+          ast: 0,
+          min: 0,
+          blk: 0,
+          games_played: 0,
+          reb: 0,
+        } as ISeasonAverage);
+      }
+    });
+  });
 
-  chartSeasonAverages.forEach((seasonAverages) =>
+  chartSeasonAveragesWithName.forEach(({ seasonAverages }) =>
     seasonAverages.sort((a, b) => a.season - b.season)
   );
 
@@ -165,10 +180,10 @@ const PlayerDetails = ({
       </FormControl>
       <LineChart
         seasons={shownYears}
-        stats={chartSeasonAverages.map((seasonAverages) => ({
-          label: String(seasonAverages[0].player_id),
-          data: seasonAverages.map((x) => x.pts),
-          lineColor: "rgb(255, 99, 132)",
+        stats={chartSeasonAveragesWithName.map((seasonAveragesWithName, i) => ({
+          label: String(seasonAveragesWithName.playerName),
+          data: seasonAveragesWithName.seasonAverages.map((x) => x.pts),
+          lineColor: colors[i],
         }))}
       />
     </>
@@ -185,7 +200,6 @@ function getYears(startYear = 1970, endYear = new Date().getFullYear()) {
   return years;
 }
 
-//0 Year Bug
-//Player Name
 //API Optimizations
-//Color Line
+
+// Add support for different stats (pts, games_played, ...)

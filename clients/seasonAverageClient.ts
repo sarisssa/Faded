@@ -1,4 +1,4 @@
-import { ISeasonAverage } from "@/interfaces/entities/ISeasonAverage";
+import { ISeasonAveragesWithName } from "@/interfaces/entities/ISeasonAveragesWithName";
 
 /**
  * Calls internal API which calls the balldontlie API for last 5 years of season averages
@@ -9,7 +9,7 @@ export async function getSeasonAverages(
   playerId: number,
   startYear?: number,
   endYear?: number
-): Promise<ISeasonAverage[]> {
+): Promise<ISeasonAveragesWithName> {
   const endpointUrl = new URL("http://localhost:3000/api/season-averages");
   endpointUrl.searchParams.append("playerId", playerId.toString());
   if (startYear) {
@@ -28,6 +28,10 @@ export async function getSeasonAverages(
     throw new Error("Too many balldontlie requests");
   }
 
-  const seasonAverages: ISeasonAverage[] = await response.json();
-  return seasonAverages.sort((x) => x.season).reverse();
+  const responseBody: ISeasonAveragesWithName = await response.json();
+  responseBody.seasonAverages = responseBody.seasonAverages
+    .sort((x) => x.season)
+    .reverse();
+
+  return responseBody;
 }

@@ -1,6 +1,9 @@
 import { IPlayer } from "../interfaces/entities/IPlayer";
 import { IEssentialPlayerData } from "../interfaces/props/ISearchBarProps";
-import { IGetPlayersResponse } from "../interfaces/responses/IGetPlayersResponse";
+import {
+  IGetPlayerResponse,
+  IGetPlayersResponse,
+} from "../interfaces/responses/IGetPlayersResponse";
 
 let allPlayers: IEssentialPlayerData[] = [];
 
@@ -42,4 +45,12 @@ export const fetchAllPlayers = async () => {
     .sort((player1, player2) => player1.name.localeCompare(player2.name)); //Sort players alphabeetically
 
   return allPlayers;
+};
+
+export const fetchPlayer = async (
+  playerId: number
+): Promise<IGetPlayerResponse> => {
+  return fetch(`https://www.balldontlie.io/api/v1/players/${playerId}`).then(
+    (x) => x.json()
+  );
 };
