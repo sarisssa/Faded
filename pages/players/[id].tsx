@@ -8,14 +8,16 @@ import { useRouter } from "next/router";
 import { useState } from "react";
 import { ISeasonAverage } from "../../interfaces/entities/ISeasonAverage";
 
-// const statsToShow: ILineConfiguration[] = [
-//   { stat: "ast", disabled: true, lineColor: "rgb(255, 99, 132)" },
-//   { stat: "pts", disabled: false, lineColor: "rgb(255, 99, 132)" },
-//   { stat: "min", disabled: true, lineColor: "rgb(255, 99, 132)" },
-//   { stat: "blk", disabled: true, lineColor: "rgb(255, 99, 132)" },
-//   { stat: "games_played", disabled: true, lineColor: "rgb(255, 99, 132)" },
-//   { stat: "reb", disabled: true, lineColor: "rgb(255, 99, 132)" },
-// ];
+type Categories = Exclude<keyof ISeasonAverage, "player_name">;
+
+const categories: [key: Categories, value: string][] = [
+  ["pts", "Points"],
+  ["reb", "Rebounds"],
+  ["ast", "Assists"],
+  ["stl", "Steals"],
+  ["blk", "Blocks"],
+  ["turnover", "Turnovers"],
+];
 
 const colors = [
   "rgb(255, 99, 132)",
@@ -29,6 +31,7 @@ const colors = [
   "#281df2",
   "#da09a0",
 ];
+
 const getAllSeasonAverages = async (
   playerIds: number[],
   startYear?: number,
@@ -80,6 +83,7 @@ const PlayerDetails = ({
   const [overridenSeasonAverages, setOverridenSeasonAverages] = useState<
     ISeasonAveragesWithName[]
   >([]);
+  const [category, setCategory] = useState<Categories>("pts");
 
   useDidMountEffect(() => {
     const fetchNewSeasonAverages = async () => {
@@ -178,11 +182,28 @@ const PlayerDetails = ({
           ))}
         </Select>
       </FormControl>
+      <FormControl size="small" style={{ width: "100px" }}>
+        <InputLabel id="demo-simple-select-label">Categories</InputLabel>
+        <Select
+          labelId="demo-simple-select-label"
+          id="demo-simple-select"
+          value={category}
+          label="Categories"
+          MenuProps={{ style: { maxHeight: 200 } }}
+          onChange={(e) => setCategory(e.target.value as Categories)}
+        >
+          {categories.map(([key, value]) => (
+            <MenuItem key={key} value={key}>
+              {value}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
       <LineChart
         seasons={shownYears}
         stats={chartSeasonAveragesWithName.map((seasonAveragesWithName, i) => ({
           label: String(seasonAveragesWithName.playerName),
-          data: seasonAveragesWithName.seasonAverages.map((x) => x.pts),
+          data: seasonAveragesWithName.seasonAverages.map((x) => x[category]),
           lineColor: colors[i],
         }))}
       />
@@ -199,7 +220,3 @@ function getYears(startYear = 1970, endYear = new Date().getFullYear()) {
   }
   return years;
 }
-
-//API Optimizations
-
-// Add support for different stats (pts, games_played, ...)
