@@ -1,11 +1,13 @@
+import FadedSelect from "@/components/faded-select";
 import LineChart from "@/components/line-chart";
 import { ISeasonAveragesWithName } from "@/interfaces/entities/ISeasonAveragesWithName";
-import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
-import { getSeasonAverages } from "clients/seasonAverageClient";
 import useDidMountEffect from "hooks/useDidMountEffect";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import { useState } from "react";
+import { getAllSeasonAverages } from "utils/getAllSeasonAverages";
+import { getPlayerIdsFromQuery } from "utils/getPlayersIdsFromQuery";
+import { getYears } from "utils/getYears";
 import { ISeasonAverage } from "../../interfaces/entities/ISeasonAverage";
 
 type Categories = Exclude<keyof ISeasonAverage, "player_name">;
@@ -18,43 +20,6 @@ const categories: [key: Categories, value: string][] = [
   ["blk", "Blocks"],
   ["turnover", "Turnovers"],
 ];
-
-const colors = [
-  "rgb(255, 99, 132)",
-  "#1f399d",
-  "#53dd1c",
-  "#94162e",
-  "#4193ec",
-  "#a25fc6",
-  "#24ecc4",
-  "#c9bfe6",
-  "#281df2",
-  "#da09a0",
-];
-
-const getAllSeasonAverages = async (
-  playerIds: number[],
-  startYear?: number,
-  endYear?: number
-) => {
-  return Promise.all(
-    playerIds.map((id) => getSeasonAverages(id, startYear, endYear))
-  );
-};
-
-const getPlayerIdsFromQuery = (players: (string | string[] | undefined)[]) => {
-  const playerIds: number[] = [];
-
-  players.map((player) => {
-    if (typeof player === "string") {
-      playerIds.push(+player);
-    } else if (player) {
-      player.forEach((id) => playerIds.push(+id));
-    }
-  });
-
-  return playerIds;
-};
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const playerIds = getPlayerIdsFromQuery([
@@ -80,33 +45,33 @@ const PlayerDetails = ({
   const [selectedPlayers, setSelectedPlayers] = useState<string[]>([]);
   const [startYear, setStartYear] = useState(new Date().getFullYear() - 6);
   const [endYear, setEndYear] = useState(new Date().getFullYear() - 1);
+  const [category, setCategory] = useState<Categories>("pts");
   const [overridenSeasonAverages, setOverridenSeasonAverages] = useState<
     ISeasonAveragesWithName[]
   >([]);
-  const [category, setCategory] = useState<Categories>("pts");
 
+  //useEffect without initial call
   useDidMountEffect(() => {
     const fetchNewSeasonAverages = async () => {
       if (!router.query.id) return;
 
-      const newPlayers = [router.query.id, router.query.compareAgainst]
-        .filter((x) => x)
-        .flat() as string[];
+      const newPlayerIds = getPlayerIdsFromQuery([
+        router.query.id,
+        router.query.compareAgainst,
+      ]);
 
-      setSelectedPlayers(newPlayers);
+      setSelectedPlayers(newPlayerIds);
 
-      if (newPlayers.length < selectedPlayers.length) {
+      if (newPlayerIds.length < selectedPlayers.length) {
         const newSeasonAverages = overridenSeasonAverages.filter((x) =>
-          newPlayers.includes(String(x.seasonAverages[0].player_id))
+          newPlayerIds.includes(String(x.seasonAverages[0].player_id))
         );
         setOverridenSeasonAverages(newSeasonAverages);
         return;
       }
 
-      const playerIds = getPlayerIdsFromQuery(newPlayers);
-
       const seasonAveragesWithName = await getAllSeasonAverages(
-        playerIds,
+        newPlayerIds,
         startYear,
         endYear
       );
@@ -148,63 +113,31 @@ const PlayerDetails = ({
 
   return (
     <>
-      <FormControl size="small">
-        <InputLabel id="demo-simple-select-label">Start year</InputLabel>
-        <Select
-          labelId="demo-simple-select-label"
-          id="demo-simple-select"
-          value={startYear}
-          label="Start year"
-          MenuProps={{ style: { maxHeight: 200 } }}
-          onChange={(e) => setStartYear(+e.target.value)}
-        >
-          {selectableYears.map((year) => (
-            <MenuItem disabled={year > endYear} key={year} value={year}>
-              {year}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-      <FormControl size="small">
-        <InputLabel id="demo-simple-select-label">End Year</InputLabel>
-        <Select
-          labelId="demo-simple-select-label"
-          id="demo-simple-select"
-          value={endYear}
-          label="End year"
-          MenuProps={{ style: { maxHeight: 200 } }}
-          onChange={(e) => setEndYear(+e.target.value)}
-        >
-          {selectableYears.map((year) => (
-            <MenuItem disabled={year < startYear} key={year} value={year}>
-              {year}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-      <FormControl size="small" style={{ width: "100px" }}>
-        <InputLabel id="demo-simple-select-label">Categories</InputLabel>
-        <Select
-          labelId="demo-simple-select-label"
-          id="demo-simple-select"
-          value={category}
-          label="Categories"
-          MenuProps={{ style: { maxHeight: 200 } }}
-          onChange={(e) => setCategory(e.target.value as Categories)}
-        >
-          {categories.map(([key, value]) => (
-            <MenuItem key={key} value={key}>
-              {value}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+      <FadedSelect
+        defaultValue={new Date().getFullYear() - 6}
+        items={selectableYears.map((year) => [year, year])}
+        label="Start Year"
+        onChange={(value) => setStartYear(value as number)}
+        isMenuItemDisabled={([curYear]) => curYear > endYear}
+      />
+      <FadedSelect
+        defaultValue={new Date().getFullYear() - 1}
+        items={selectableYears.map((year) => [year, year])}
+        label="End Year"
+        onChange={(value) => setEndYear(value as number)}
+        isMenuItemDisabled={([curYear]) => curYear < startYear}
+      />
+      <FadedSelect
+        defaultValue="pts"
+        items={categories}
+        label="Categories"
+        onChange={(value) => setCategory(value as Categories)}
+      />
       <LineChart
         seasons={shownYears}
         stats={chartSeasonAveragesWithName.map((seasonAveragesWithName, i) => ({
           label: String(seasonAveragesWithName.playerName),
           data: seasonAveragesWithName.seasonAverages.map((x) => x[category]),
-          lineColor: colors[i],
         }))}
       />
     </>
@@ -212,11 +145,3 @@ const PlayerDetails = ({
 };
 
 export default PlayerDetails;
-
-function getYears(startYear = 1970, endYear = new Date().getFullYear()) {
-  const years = [];
-  for (let i = startYear; i <= endYear; i++) {
-    years.push(startYear++);
-  }
-  return years;
-}

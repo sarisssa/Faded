@@ -3,6 +3,5 @@ export interface ILineChartProps {
   stats: {
     label: string;
     data: number[];
-    lineColor: string;
   }[];
 }

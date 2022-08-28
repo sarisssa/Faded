@@ -22,7 +22,20 @@ ChartJS.register(
   Legend
 );
 
-export const options = {
+const colors = [
+  "rgb(255, 99, 132)",
+  "#1f399d",
+  "#53dd1c",
+  "#94162e",
+  "#4193ec",
+  "#a25fc6",
+  "#24ecc4",
+  "#c9bfe6",
+  "#281df2",
+  "#da09a0",
+];
+
+const options = {
   responsive: true,
   interaction: {
     mode: "index" as const,
@@ -56,11 +69,11 @@ export default function LineChart(props: ILineChartProps) {
 function convertToLineData(props: ILineChartProps): ChartData<"line"> {
   return {
     labels: props.seasons.map((x) => x.toString()),
-    datasets: props.stats.map((x) => ({
+    datasets: props.stats.map((x, index) => ({
       label: x.label,
       data: x.data,
-      borderColor: x.lineColor,
-      backgroundColor: x.lineColor,
+      borderColor: colors[index],
+      backgroundColor: colors[index],
       tension: 0.1,
       pointRadius: 7,
     })),

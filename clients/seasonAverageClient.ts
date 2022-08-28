@@ -6,7 +6,7 @@ import { ISeasonAveragesWithName } from "@/interfaces/entities/ISeasonAveragesWi
  * @param playerId The player you want to fetch the season averages of
  */
 export async function getSeasonAverages(
-  playerId: number,
+  playerId: number | string,
   startYear?: number,
   endYear?: number
 ): Promise<ISeasonAveragesWithName> {
