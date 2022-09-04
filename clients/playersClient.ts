@@ -1,22 +1,26 @@
 import { IEssentialPlayerData } from "@/interfaces/props/ISearchBarProps";
+import { BASE_URL } from "./baseUrl";
 
-export async function getPlayers(): Promise<IEssentialPlayerData[]> {
-  // Client side caching: return localstorage if it exists
-  const localAllPlayers = localStorage.getItem("/api/players");
+const getAllPlayersUrl = `${BASE_URL}/players`;
+// const getAllPlayersUrl = `/api/players`;
+const allPlayersLocalStorageKey = getAllPlayersUrl;
 
-  if (localAllPlayers) {
-    return JSON.parse(localAllPlayers);
+export const getPlayers = async (): Promise<IEssentialPlayerData[]> => {
+  const cachedAllPlayers = localStorage.getItem(allPlayersLocalStorageKey);
+
+  if (cachedAllPlayers) {
+    return JSON.parse(cachedAllPlayers);
   }
 
-  const response = await fetch("/api/players");
+  const allPlayersResponse = await fetch(getAllPlayersUrl);
   if (
-    response.status === 500 &&
-    (await response.text()) === "Too many balldontlie requests"
+    allPlayersResponse.status === 500 &&
+    (await allPlayersResponse.text()) === "Too many balldontlie requests"
   ) {
     throw new Error("Too many balldontlie requests");
   }
 
-  const allPlayers: IEssentialPlayerData[] = await response.json();
-  localStorage.setItem("/api/players", JSON.stringify(allPlayers));
+  const allPlayers: IEssentialPlayerData[] = await allPlayersResponse.json();
+  localStorage.setItem(allPlayersLocalStorageKey, JSON.stringify(allPlayers));
   return allPlayers;
-}
+};

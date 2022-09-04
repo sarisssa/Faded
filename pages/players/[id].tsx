@@ -12,6 +12,8 @@ import { ISeasonAverage } from "../../interfaces/entities/ISeasonAverage";
 
 type Categories = Exclude<keyof ISeasonAverage, "player_name">;
 
+const lastSeason = new Date().getFullYear() - 1;
+const firstShownSeason = new Date().getFullYear() - 6;
 const categories: [key: Categories, value: string][] = [
   ["pts", "Points"],
   ["reb", "Rebounds"],
@@ -43,8 +45,8 @@ const PlayerDetails = ({
   const router = useRouter();
 
   const [selectedPlayers, setSelectedPlayers] = useState<string[]>([]);
-  const [startYear, setStartYear] = useState(new Date().getFullYear() - 6);
-  const [endYear, setEndYear] = useState(new Date().getFullYear() - 1);
+  const [startYear, setStartYear] = useState(firstShownSeason);
+  const [endYear, setEndYear] = useState(lastSeason);
   const [category, setCategory] = useState<Categories>("pts");
   const [overridenSeasonAverages, setOverridenSeasonAverages] = useState<
     ISeasonAveragesWithName[]

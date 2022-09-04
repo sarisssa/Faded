@@ -2,7 +2,7 @@ import { fetchAllPlayers } from "@/services/playersService";
 import { NextApiRequest, NextApiResponse } from "next";
 
 export default async function getAllPlayers(
-  req: NextApiRequest,
+  _: NextApiRequest,
   res: NextApiResponse
 ) {
   try {

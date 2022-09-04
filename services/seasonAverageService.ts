@@ -1,42 +1,61 @@
 import { ISeasonAverage } from "../interfaces/entities/ISeasonAverage";
 import { ISeasonAverageResponse } from "../interfaces/responses/ISeasonAverageResponse";
+import { BASE_URL } from "./baseUrl";
 
-const cache = new Map<string, ISeasonAverage>();
+const seasonAveragesCache = new Map<string, ISeasonAverage>();
+const lastSeason = new Date().getFullYear() - 1;
+const firstShownSeason = new Date().getFullYear() - 6;
+
+const sortSeasonsByYearsAscending = (seasonAverages: ISeasonAverage[]) =>
+  seasonAverages.sort((a, b) => b.season - a.season);
+
+const getUniqueCacheKey = (season: number, playerId: number) =>
+  `${season}_${playerId}`;
 
 export const getSeasonAverages = async (
   playerId: number,
-  startYear = new Date().getFullYear() - 6,
-  endYear = new Date().getFullYear() - 1
+  startYear = firstShownSeason,
+  endYear = lastSeason
 ) => {
-  const promises: Promise<ISeasonAverage>[] = [];
+  const fetchSeasonAveragesPromises: Promise<ISeasonAverage | undefined>[] = [];
 
   for (let i = startYear; i <= endYear; i++) {
-    const cachedSeasonAverage = cache.get(`${i}${playerId}`);
+    const cachedSeasonAverage = seasonAveragesCache.get(
+      getUniqueCacheKey(i, playerId)
+    );
     if (cachedSeasonAverage) {
-      promises.push(Promise.resolve(cachedSeasonAverage));
+      // Because the array is filled with promises, we have to wrap the cached season average in a promise
+      fetchSeasonAveragesPromises.push(Promise.resolve(cachedSeasonAverage));
       continue;
     }
 
-    const promise = fetch(
-      `https://www.balldontlie.io/api/v1/season_averages?season=${i}&player_ids[]=${playerId}`
+    const getSeasonAverageResult = fetch(
+      `${BASE_URL}/season_averages?season=${i}&player_ids[]=${playerId}`
     )
       .then((res) => res.json())
       .then((res: ISeasonAverageResponse) => {
+        // Return only first element because we only retrieve season averages of 1 player
         return res.data[0];
       });
-    promises.push(promise);
+
+    fetchSeasonAveragesPromises.push(getSeasonAverageResult);
   }
 
-  const seasonAverages = (await Promise.all(promises)).filter(
-    (average) => average !== undefined
-  );
-  seasonAverages.forEach((seasonAverage) => {
-    cache.set(`${seasonAverage.season}${playerId}`, seasonAverage);
+  const seasonAverages = await Promise.all(fetchSeasonAveragesPromises);
+  const definedSeasonAverages = seasonAverages.filter(
+    (average) => average
+  ) as ISeasonAverage[];
+
+  definedSeasonAverages.forEach((seasonAverage) => {
+    seasonAveragesCache.set(
+      getUniqueCacheKey(seasonAverage.season, playerId),
+      seasonAverage
+    );
   });
 
-  const sortedSeasonAverages = seasonAverages.sort(
-    (a, b) => b.season - a.season
+  const sortedSeasonAverages = sortSeasonsByYearsAscending(
+    definedSeasonAverages
   );
 
-  return sortedSeasonAverages; //No await because the return value is not being utilized by this function
+  return sortedSeasonAverages;
 };

@@ -7,13 +7,14 @@ export default async function getSeasonAveragesOfPlayers(
   res: NextApiResponse
 ) {
   try {
-    const playerInfo = await fetchPlayer(+req.query.playerId);
-
+    const { playerId, startYear, endYear } = req.query;
+    const playerInfo = await fetchPlayer(+playerId);
     const seasonAverages = await getSeasonAverages(
-      +req.query.playerId, // + sign to cast string into number
-      +req.query.startYear || undefined,
-      +req.query.endYear || undefined
+      +playerId,
+      +startYear || undefined,
+      +endYear || undefined
     );
+
     res.status(200).json({
       playerName: `${playerInfo.first_name} ${playerInfo.last_name}`,
       seasonAverages,

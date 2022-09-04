@@ -4,53 +4,59 @@ import {
   IGetPlayerResponse,
   IGetPlayersResponse,
 } from "../interfaces/responses/IGetPlayersResponse";
+import { BASE_URL } from "./baseUrl";
 
-let allPlayers: IEssentialPlayerData[] = [];
+const sortPlayersByNameAlphabetically = (
+  player1: IEssentialPlayerData,
+  player2: IEssentialPlayerData
+) => player1.name.localeCompare(player2.name);
+
+let cachedPlayers: IEssentialPlayerData[] = [];
 
 export const fetchAllPlayers = async () => {
-  // Server side caching: gets lost when the server restarts
-  if (allPlayers.length) {
-    return allPlayers;
+  if (cachedPlayers.length) {
+    return cachedPlayers;
   }
 
-  const res: Response = await fetch(
-    "https://www.balldontlie.io/api/v1/players?per_page=100"
-  );
-  const data: IGetPlayersResponse = await res.json();
-  const totalPages: number = data.meta.total_pages;
+  const maxAmountPerPage = 100;
+  const getPlayersUrl = `${BASE_URL}/players?per_page=${maxAmountPerPage}`;
+  const firstGetPlayersResponse: IGetPlayersResponse = await fetch(
+    getPlayersUrl
+  ).then((x) => x.json());
+  const totalPages = firstGetPlayersResponse.meta.total_pages;
 
-  let promises: Promise<IPlayer[]>[] = []; //promises will be an arr of Promises that return IPlayer arrays
+  let fetchPlayersPromises: Promise<IPlayer[]>[] = [];
 
-  for (let i = 2; i < totalPages + 1; i++) {
-    promises.push(
-      //Rare use case of then chaining to transform fetched data without waiting
-      fetch(`https://www.balldontlie.io/api/v1/players?page=${i}&per_page=100`)
+  const skipFirstPage = 2;
+  for (let i = skipFirstPage; i < totalPages + 1; i++) {
+    fetchPlayersPromises.push(
+      fetch(`${getPlayersUrl}&page=${i}`)
         .then((res) => {
           if (res.status === 429) {
             throw new Error("Too many balldontlie requests");
           }
           return res.json();
-        }) // Functionality of parse within json method
+        })
         .then((res: IGetPlayersResponse) => res.data)
     );
   }
 
-  allPlayers = [...data.data, ...(await Promise.all(promises)).flat()]
-    .map((player) => {
-      return {
-        name: player.first_name + " " + player.last_name,
-        id: player.id,
-      };
-    })
-    .sort((player1, player2) => player1.name.localeCompare(player2.name)); //Sort players alphabeetically
+  const otherGetPlayersResults = (
+    await Promise.all(fetchPlayersPromises)
+  ).flat();
 
-  return allPlayers;
+  cachedPlayers = [...firstGetPlayersResponse.data, ...otherGetPlayersResults]
+    .map((player) => ({
+      name: player.first_name + " " + player.last_name,
+      id: player.id,
+    }))
+    .sort(sortPlayersByNameAlphabetically);
+
+  return cachedPlayers;
 };
 
 export const fetchPlayer = async (
   playerId: number
 ): Promise<IGetPlayerResponse> => {
-  return fetch(`https://www.balldontlie.io/api/v1/players/${playerId}`).then(
-    (x) => x.json()
-  );
+  return fetch(`${BASE_URL}/players/${playerId}`).then((x) => x.json());
 };
