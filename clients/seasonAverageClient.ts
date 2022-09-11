@@ -13,14 +13,13 @@ const sortSeasonAveragesBySeasonDesc = (seasonAverages: ISeasonAverage[]) => {
  * @param startYear The first year to fetch season averages
  * @param endYear The last year to fetch season averages
  */
-export async function getSeasonAverages(
+export const getSeasonAverages = async (
   playerId: number | string,
   startYear?: number,
   endYear?: number
-): Promise<ISeasonAveragesWithName> {
+): Promise<ISeasonAveragesWithName> => {
   let endpointUrl = `${BASE_URL}/season-averages?playerId=${playerId}`;
-  // let endpointUrl = `http://localhost:3000/api/season-averages?playerId=${playerId}`;
-  // let endpointUrl = `/api/season-averages?playerId=${playerId}`;
+
   if (startYear) {
     endpointUrl += `&startYear=${startYear}`;
   }
@@ -28,7 +27,6 @@ export async function getSeasonAverages(
     endpointUrl += `&endYear=${endYear}`;
   }
 
-  console.log(endpointUrl);
   const getSeasonAveragesResponse = await fetch(endpointUrl);
 
   if (
@@ -46,4 +44,4 @@ export async function getSeasonAverages(
   );
 
   return seasonAveragesWithName;
-}
+};

@@ -2,7 +2,6 @@ import { IEssentialPlayerData } from "@/interfaces/props/ISearchBarProps";
 import { BASE_URL } from "./baseUrl";
 
 const getAllPlayersUrl = `${BASE_URL}/players`;
-// const getAllPlayersUrl = `/api/players`;
 const allPlayersLocalStorageKey = getAllPlayersUrl;
 
 export const getPlayers = async (): Promise<IEssentialPlayerData[]> => {
