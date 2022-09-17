@@ -24,13 +24,13 @@ ChartJS.register(
 
 const colors = [
   "rgb(255, 99, 132)",
-  "#1f399d",
-  "#53dd1c",
+  "#0c2eb6",
+  "#c9bfe6",
+  "#7a4f5a",
   "#94162e",
   "#4193ec",
   "#a25fc6",
   "#24ecc4",
-  "#c9bfe6",
   "#281df2",
   "#da09a0",
 ];
@@ -45,17 +45,36 @@ const options = {
   plugins: {
     legend: {
       position: "top" as const,
+      labels: { color: "white" },
     },
     title: {
       display: true,
-      text: "Season averages",
+      color: "white",
+      text: "Season Averages",
+      font: { size: 30 },
     },
   },
   scales: {
+    x: {
+      grid: {
+        borderColor: "#888",
+        color: "#333",
+      },
+      ticks: {
+        color: "#CCC",
+      },
+    },
     y: {
       type: "linear" as const,
       display: true,
       position: "left" as const,
+      grid: {
+        borderColor: "#888",
+        color: "#333",
+      },
+      ticks: {
+        color: "#CCC",
+      },
     },
   },
 };

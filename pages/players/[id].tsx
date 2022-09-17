@@ -1,4 +1,5 @@
-import FadedSelect from "@/components/faded-select";
+import ConfigurationBar from "@/components/configuration-bar";
+import { FadedSelect } from "@/components/faded-select";
 import LineChart from "@/components/line-chart";
 import { ISeasonAveragesWithName } from "@/interfaces/entities/ISeasonAveragesWithName";
 import useDidMountEffect from "hooks/useDidMountEffect";
@@ -115,33 +116,44 @@ const PlayerDetails = ({
 
   return (
     <>
-      <FadedSelect
-        defaultValue={new Date().getFullYear() - 6}
-        items={selectableYears.map((year) => [year, year])}
-        label="Start Year"
-        onChange={(value) => setStartYear(value as number)}
-        isMenuItemDisabled={([curYear]) => curYear > endYear}
-      />
-      <FadedSelect
-        defaultValue={new Date().getFullYear() - 1}
-        items={selectableYears.map((year) => [year, year])}
-        label="End Year"
-        onChange={(value) => setEndYear(value as number)}
-        isMenuItemDisabled={([curYear]) => curYear < startYear}
-      />
-      <FadedSelect
-        defaultValue="pts"
-        items={categories}
-        label="Categories"
-        onChange={(value) => setCategory(value as Categories)}
-      />
-      <LineChart
-        seasons={shownYears}
-        stats={chartSeasonAveragesWithName.map((seasonAveragesWithName, i) => ({
-          label: String(seasonAveragesWithName.playerName),
-          data: seasonAveragesWithName.seasonAverages.map((x) => x[category]),
-        }))}
-      />
+      <ConfigurationBar>
+        <>
+          <FadedSelect
+            defaultValue={new Date().getFullYear() - 6}
+            items={selectableYears.map((year) => [year, year])}
+            label="Start Year"
+            onChange={(value) => setStartYear(value as number)}
+            isMenuItemDisabled={([curYear]) => curYear > endYear}
+          />
+          <FadedSelect
+            defaultValue={new Date().getFullYear() - 1}
+            items={selectableYears.map((year) => [year, year])}
+            label="End Year"
+            onChange={(value) => setEndYear(value as number)}
+            isMenuItemDisabled={([curYear]) => curYear < startYear}
+          />
+          <FadedSelect
+            defaultValue="pts"
+            items={categories}
+            label="Categories"
+            onChange={(value) => setCategory(value as Categories)}
+          />
+        </>
+      </ConfigurationBar>
+
+      <div className="m-20">
+        <LineChart
+          seasons={shownYears}
+          stats={chartSeasonAveragesWithName.map(
+            (seasonAveragesWithName, i) => ({
+              label: String(seasonAveragesWithName.playerName),
+              data: seasonAveragesWithName.seasonAverages.map(
+                (x) => x[category]
+              ),
+            })
+          )}
+        />
+      </div>
     </>
   );
 };

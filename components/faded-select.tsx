@@ -1,4 +1,5 @@
 import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
+import { ReactElement } from "react";
 
 interface FadedSelectProps {
   defaultValue: string | number;
@@ -10,15 +11,15 @@ interface FadedSelectProps {
   ) => boolean;
 }
 
-export default function FadedSelect({
+export const FadedSelect = ({
   defaultValue,
   items,
   label,
   onChange,
   isMenuItemDisabled,
-}: FadedSelectProps) {
+}: FadedSelectProps): ReactElement => {
   return (
-    <FormControl size="small">
+    <FormControl size="small" className="m-4 self-end">
       <InputLabel id="demo-simple-select-label">{label}</InputLabel>
       <Select
         labelId="demo-simple-select-label"
@@ -40,4 +41,4 @@ export default function FadedSelect({
       </Select>
     </FormControl>
   );
-}
+};

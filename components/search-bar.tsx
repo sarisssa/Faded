@@ -9,7 +9,6 @@ import { useRouter } from "next/router";
 import PropTypes from "prop-types";
 import * as React from "react";
 import { VariableSizeList } from "react-window";
-// import { useFadedStore } from "store/store";
 import { IEssentialPlayerData } from "../interfaces/props/ISearchBarProps";
 
 interface ISearchBarProps {
@@ -31,42 +30,47 @@ export default function SearchBar({ allPlayers }: ISearchBarProps) {
   );
 
   return (
-    <Autocomplete
-      onChange={(_, players) => {
-        if (players && players[0]) {
-          const firstPlayer =
-            players.find((x) => x.id === +(router.query.id ?? 0)) ?? players[0];
+    <div className="m-4">
+      <Autocomplete
+        onChange={(_, players) => {
+          if (players && players[0]) {
+            const firstPlayer =
+              players.find((x) => x.id === +(router.query.id ?? 0)) ??
+              players[0];
 
-          const comparedPlayers = players.filter(
-            (x) => x.id !== firstPlayer.id
-          );
+            const comparedPlayers = players.filter(
+              (x) => x.id !== firstPlayer.id
+            );
 
-          router.push(
-            {
-              pathname: `/players/${firstPlayer.id}`,
-              query: { compareAgainst: comparedPlayers.map((x) => x.id) },
-            },
-            undefined,
-            { shallow: true }
-          );
-        } else {
-          router.push("/players", undefined, { shallow: true });
-        }
-      }}
-      id="player"
-      sx={{ width: 300 }}
-      disableListWrap
-      PopperComponent={StyledPopper}
-      ListboxComponent={ListboxComponent as any}
-      options={allPlayers}
-      getOptionLabel={(player) => player?.name ?? "Unknown"}
-      groupBy={(player) => player?.name[0]?.toUpperCase() ?? "Unknown"}
-      renderInput={(params) => <TextField {...params} label="Choose Player" />}
-      renderOption={((props: any, option: any) => [props, option]) as any}
-      renderGroup={(params) => params as any}
-      value={players}
-      multiple={true}
-    />
+            router.push(
+              {
+                pathname: `/players/${firstPlayer.id}`,
+                query: { compareAgainst: comparedPlayers.map((x) => x.id) },
+              },
+              undefined,
+              { shallow: true }
+            );
+          } else {
+            router.push("/players", undefined, { shallow: true });
+          }
+        }}
+        id="player"
+        sx={{ width: 300 }}
+        disableListWrap
+        PopperComponent={StyledPopper}
+        ListboxComponent={ListboxComponent as any}
+        options={allPlayers}
+        getOptionLabel={(player) => player?.name ?? "Unknown"}
+        groupBy={(player) => player?.name[0]?.toUpperCase() ?? "Unknown"}
+        renderInput={(params) => (
+          <TextField {...params} label="Choose Player" variant="standard" />
+        )}
+        renderOption={((props: any, option: any) => [props, option]) as any}
+        renderGroup={(params) => params as any}
+        value={players}
+        multiple={true}
+      />
+    </div>
   );
 }
 

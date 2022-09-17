@@ -1,7 +1,5 @@
-import { getPlayers } from "clients/playersClient";
-import { useEffect, useState } from "react";
-import { IEssentialPlayerData } from "../interfaces/props/ISearchBarProps";
-import SearchBar from "./search-bar";
+import Head from "next/head";
+import Header from "./header";
 
 interface ILayoutProps {
   children: JSX.Element;
@@ -16,31 +14,15 @@ interface ILayoutContentProps {
 }
 
 const LayoutContent = ({ children }: ILayoutContentProps) => {
-  const [allPlayers, setAllPlayers] = useState<IEssentialPlayerData[]>([]);
-  const [isInErrorState, setIsInErrorState] = useState(false);
-
-  const fetchPlayers = async () => {
-    try {
-      setAllPlayers(await getPlayers());
-    } catch {
-      setIsInErrorState(true);
-    }
-  };
-
-  useEffect(() => {
-    fetchPlayers();
-  }, []);
-
   return (
     <>
-      <h1>FADED</h1>
-      {!allPlayers.length && !isInErrorState && <p>Loading...</p>}
-      {allPlayers.length && !isInErrorState && (
-        <>
-          <SearchBar allPlayers={allPlayers} />
-        </>
-      )}
-      {isInErrorState && <p>Error while retrieving players</p>}
+      <Head>
+        <title>Faded</title>
+        <meta name="description" content="nba basketball stats" />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
+
+      <Header />
       <main>{children}</main>
     </>
   );
