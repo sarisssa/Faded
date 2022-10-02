@@ -5,6 +5,7 @@ import { styled, useTheme } from "@mui/material/styles";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import { useWindowSize } from "hooks/useWindowSize";
 import { useRouter } from "next/router";
 import PropTypes from "prop-types";
 import * as React from "react";
@@ -13,10 +14,12 @@ import { IEssentialPlayerData } from "../interfaces/props/ISearchBarProps";
 
 interface ISearchBarProps {
   allPlayers: IEssentialPlayerData[];
+  onPlayerSelect?: (playerId: number) => void;
 }
-
-export default function SearchBar({ allPlayers }: ISearchBarProps) {
+// eslint-disable-next-line react/display-name
+const SearchBar = ({ allPlayers, onPlayerSelect }: ISearchBarProps) => {
   const router = useRouter();
+  const { width } = useWindowSize();
 
   const compareAgainst =
     typeof router.query.compareAgainst === "string"
@@ -30,7 +33,7 @@ export default function SearchBar({ allPlayers }: ISearchBarProps) {
   );
 
   return (
-    <div className="m-4">
+    <div className="m-4 ">
       <Autocomplete
         onChange={(_, players) => {
           if (players && players[0]) {
@@ -41,13 +44,14 @@ export default function SearchBar({ allPlayers }: ISearchBarProps) {
             const comparedPlayers = players.filter(
               (x) => x.id !== firstPlayer.id
             );
-
+            onPlayerSelect?.(firstPlayer.id);
             router.push(
               {
                 pathname: `/players/${firstPlayer.id}`,
                 query: { compareAgainst: comparedPlayers.map((x) => x.id) },
               },
               undefined,
+              //Disable data fetching when we amend URL
               { shallow: true }
             );
           } else {
@@ -55,7 +59,7 @@ export default function SearchBar({ allPlayers }: ISearchBarProps) {
           }
         }}
         id="player"
-        sx={{ width: 300 }}
+        sx={{ width: width < 768 ? "100%" : 200 }}
         disableListWrap
         PopperComponent={StyledPopper}
         ListboxComponent={ListboxComponent as any}
@@ -72,7 +76,7 @@ export default function SearchBar({ allPlayers }: ISearchBarProps) {
       />
     </div>
   );
-}
+};
 
 const LISTBOX_PADDING = 8; // px
 
@@ -190,3 +194,7 @@ const StyledPopper = styled(Popper)({
     },
   },
 });
+
+SearchBar.displayName = "SearchBar";
+
+export default SearchBar;

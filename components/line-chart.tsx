@@ -24,9 +24,9 @@ ChartJS.register(
 
 const colors = [
   "rgb(255, 99, 132)",
-  "#0c2eb6",
-  "#c9bfe6",
-  "#7a4f5a",
+  "#2E8BC0",
+  "#606c38",
+  "#E6BE8A",
   "#94162e",
   "#4193ec",
   "#a25fc6",
@@ -37,6 +37,7 @@ const colors = [
 
 const options = {
   responsive: true,
+  maintainAspectRatio: false,
   interaction: {
     mode: "index" as const,
     intersect: false,
@@ -82,7 +83,11 @@ const options = {
 export default function LineChart(props: ILineChartProps) {
   const data = convertToLineData(props);
 
-  return <Line options={options} data={data} />;
+  return (
+    <div className="md:h-[500px] h-[350px]">
+      <Line options={options} data={data} />
+    </div>
+  );
 }
 
 function convertToLineData(props: ILineChartProps): ChartData<"line"> {
@@ -94,7 +99,7 @@ function convertToLineData(props: ILineChartProps): ChartData<"line"> {
       borderColor: colors[index],
       backgroundColor: colors[index],
       tension: 0.1,
-      pointRadius: 7,
+      pointRadius: 5,
     })),
   };
 }

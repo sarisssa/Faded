@@ -1,4 +1,5 @@
 import Head from "next/head";
+import { useRouter } from "next/router";
 import Header from "./header";
 
 interface ILayoutProps {
@@ -6,7 +7,7 @@ interface ILayoutProps {
 }
 
 export default function Layout({ children }: ILayoutProps) {
-  return <LayoutContent children={children} />;
+  return <LayoutContent>{children}</LayoutContent>;
 }
 
 interface ILayoutContentProps {
@@ -14,6 +15,7 @@ interface ILayoutContentProps {
 }
 
 const LayoutContent = ({ children }: ILayoutContentProps) => {
+  const router = useRouter();
   return (
     <>
       <Head>
@@ -22,7 +24,7 @@ const LayoutContent = ({ children }: ILayoutContentProps) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <Header />
+      {router.pathname !== "/" && <Header />}
       <main>{children}</main>
     </>
   );

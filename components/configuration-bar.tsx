@@ -5,9 +5,13 @@ import SearchBar from "./search-bar";
 
 interface ConfigurationBarProps {
   children?: ReactElement;
+  onPlayerSelect?: (playerId: number) => void;
 }
 
-export default function ConfigurationBar({ children }: ConfigurationBarProps) {
+export default function ConfigurationBar({
+  children,
+  onPlayerSelect,
+}: ConfigurationBarProps) {
   const [allPlayers, setAllPlayers] = useState<IEssentialPlayerData[]>([]);
   const [isInErrorState, setIsInErrorState] = useState(false);
 
@@ -24,10 +28,10 @@ export default function ConfigurationBar({ children }: ConfigurationBarProps) {
   }, []);
 
   return (
-    <div className="flex justify-around">
+    <div className="flex justify-around md:flex-row flex-col">
       {!allPlayers.length && !isInErrorState && <p>Loading...</p>}
       {allPlayers.length && !isInErrorState && (
-        <SearchBar allPlayers={allPlayers} />
+        <SearchBar onPlayerSelect={onPlayerSelect} allPlayers={allPlayers} />
       )}
       {isInErrorState && <p>Error while retrieving players</p>}
       {children}
