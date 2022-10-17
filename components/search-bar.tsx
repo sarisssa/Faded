@@ -33,7 +33,7 @@ const SearchBar = ({ allPlayers, onPlayerSelect }: ISearchBarProps) => {
   );
 
   return (
-    <div className="m-4 ">
+    <div className="m-4">
       <Autocomplete
         onChange={(_, players) => {
           if (players && players[0]) {

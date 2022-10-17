@@ -28,17 +28,21 @@ interface PlayerConfigurationBarProps {
     seasonAveragesWithNames: ISeasonAveragesWithName[]
   ) => void;
   onCategoryChange?: (category: Categories) => void;
+  startYear?: number;
+  endYear?: number;
+  onStartYearChange?: (startYear: number) => void;
+  onEndYearChange?: (endYear: number) => void;
 }
 
 export default function PlayerConfigurationBar({
   onSeasonAveragesChange,
   onCategoryChange,
+  startYear = firstShownSeason,
+  endYear = lastSeason,
+  onStartYearChange,
+  onEndYearChange,
 }: PlayerConfigurationBarProps) {
-  const [startYear, setStartYear] = useState(firstShownSeason);
-  const [endYear, setEndYear] = useState(lastSeason);
-
   const selectableYears = getYears();
-
   const router = useRouter();
 
   const [selectedPlayers, setSelectedPlayers] = useState<string[]>([]);
@@ -49,7 +53,7 @@ export default function PlayerConfigurationBar({
   //useEffect without initial call
   useDidMountEffect(() => {
     const fetchNewSeasonAverages = async () => {
-      if (!router.query.id) return;
+      if (!router.query.id) return; //Purpose?
 
       const newPlayerIds = getPlayerIdsFromQuery([
         router.query.id,
@@ -59,6 +63,7 @@ export default function PlayerConfigurationBar({
       setSelectedPlayers(newPlayerIds);
 
       if (newPlayerIds.length < selectedPlayers.length) {
+        //Is this when we remove a player from search bar?
         const newSeasonAverages = seasonAverages.filter((x) =>
           newPlayerIds.includes(String(x.seasonAverages[0].player_id))
         );
@@ -84,17 +89,17 @@ export default function PlayerConfigurationBar({
     <ConfigurationBar>
       <div className="flex justify-between">
         <FadedSelect
-          defaultValue={new Date().getFullYear() - 6}
-          items={selectableYears.map((year) => [year, year])}
+          defaultValue={startYear}
+          items={selectableYears.map((year) => [year, year])} //Explain syntax
           label="Start Year"
-          onChange={(value) => setStartYear(value as number)}
+          onChange={(value) => onStartYearChange?.(value as number)} //On change of year, confirm new fetch?
           isMenuItemDisabled={([curYear]) => curYear > endYear}
         />
         <FadedSelect
-          defaultValue={new Date().getFullYear() - 1}
+          defaultValue={endYear}
           items={selectableYears.map((year) => [year, year])}
           label="End Year"
-          onChange={(value) => setEndYear(value as number)}
+          onChange={(value) => onEndYearChange?.(value as number)}
           isMenuItemDisabled={([curYear]) => curYear < startYear}
         />
         <FadedSelect

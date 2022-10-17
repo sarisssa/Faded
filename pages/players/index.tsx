@@ -2,7 +2,7 @@ import PlayerConfigurationBar from "@/components/player-configuration-bar";
 import { useRouter } from "next/router";
 
 // Return no UI if the user didn't select any player but don't throw an error either
-export default function index() {
+const index = () => {
   const router = useRouter();
 
   return (
@@ -15,4 +15,6 @@ export default function index() {
       }}
     />
   );
-}
+};
+
+export default index;
