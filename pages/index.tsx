@@ -26,9 +26,9 @@ export default function Home() {
         className="card md:w-96 w-3/4 bg-gray-600 shadow-xl absolute left-1/2 top-1/2 
         -translate-x-1/2 -translate-y-1/2 bg-opacity-80"
       >
-        <div className="card-body">
+        <div className="card-body p-0">
           <div className="flex justify-center items-center">
-            <div className="relative top-1 left-2">
+            <div className="relative top-2.5 left-5 md:left-20">
               {isLoading && <Spinner />}
             </div>
             <div className="w-full mb-8">
