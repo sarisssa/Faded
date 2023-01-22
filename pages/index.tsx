@@ -31,7 +31,7 @@ export default function Home() {
             <div className="relative top-1 left-2">
               {isLoading && <Spinner />}
             </div>
-            <div className="w-full">
+            <div className="w-full mb-8">
               <ConfigurationBar onPlayerSelect={onPlayerSelect} />
             </div>
           </div>

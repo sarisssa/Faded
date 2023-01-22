@@ -81,6 +81,7 @@ const options = {
 };
 
 export default function LineChart(props: ILineChartProps) {
+  console.log(props.stats);
   const data = convertToLineData(props);
 
   return (
@@ -91,6 +92,7 @@ export default function LineChart(props: ILineChartProps) {
 }
 
 function convertToLineData(props: ILineChartProps): ChartData<"line"> {
+  //CHANGE PROPS
   return {
     labels: props.seasons.map((x) => x.toString()),
     datasets: props.stats.map((x, index) => ({

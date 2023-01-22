@@ -33,48 +33,45 @@ const SearchBar = ({ allPlayers, onPlayerSelect }: ISearchBarProps) => {
   );
 
   return (
-    <div className="m-4">
-      <Autocomplete
-        onChange={(_, players) => {
-          if (players && players[0]) {
-            const firstPlayer =
-              players.find((x) => x.id === +(router.query.id ?? 0)) ??
-              players[0];
+    <Autocomplete
+      onChange={(_, players) => {
+        if (players && players[0]) {
+          const firstPlayer =
+            players.find((x) => x.id === +(router.query.id ?? 0)) ?? players[0];
 
-            const comparedPlayers = players.filter(
-              (x) => x.id !== firstPlayer.id
-            );
-            onPlayerSelect?.(firstPlayer.id);
-            router.push(
-              {
-                pathname: `/players/${firstPlayer.id}`,
-                query: { compareAgainst: comparedPlayers.map((x) => x.id) },
-              },
-              undefined,
-              //Disable data fetching when we amend URL
-              { shallow: true }
-            );
-          } else {
-            router.push("/players", undefined, { shallow: true });
-          }
-        }}
-        id="player"
-        sx={{ width: width < 768 ? "100%" : 200 }}
-        disableListWrap
-        PopperComponent={StyledPopper}
-        ListboxComponent={ListboxComponent as any}
-        options={allPlayers}
-        getOptionLabel={(player) => player?.name ?? "Unknown"}
-        groupBy={(player) => player?.name[0]?.toUpperCase() ?? "Unknown"}
-        renderInput={(params) => (
-          <TextField {...params} label="Choose Player" variant="standard" />
-        )}
-        renderOption={((props: any, option: any) => [props, option]) as any}
-        renderGroup={(params) => params as any}
-        value={players}
-        multiple={true}
-      />
-    </div>
+          const comparedPlayers = players.filter(
+            (x) => x.id !== firstPlayer.id
+          );
+          onPlayerSelect?.(firstPlayer.id);
+          router.push(
+            {
+              pathname: `/players/${firstPlayer.id}`,
+              query: { compareAgainst: comparedPlayers.map((x) => x.id) },
+            },
+            undefined,
+            //Disable data fetching when we amend URL
+            { shallow: true }
+          );
+        } else {
+          router.push("/players", undefined, { shallow: true });
+        }
+      }}
+      id="player"
+      sx={{ width: width < 768 ? "100%" : 200 }}
+      disableListWrap
+      PopperComponent={StyledPopper}
+      ListboxComponent={ListboxComponent as any}
+      options={allPlayers}
+      getOptionLabel={(player) => player?.name ?? "Unknown"}
+      groupBy={(player) => player?.name[0]?.toUpperCase() ?? "Unknown"}
+      renderInput={(params) => (
+        <TextField {...params} label="Choose Player" variant="standard" />
+      )}
+      renderOption={((props: any, option: any) => [props, option]) as any}
+      renderGroup={(params) => params as any}
+      value={players}
+      multiple={true}
+    />
   );
 };
 

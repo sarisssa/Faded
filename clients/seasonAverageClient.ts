@@ -26,9 +26,7 @@ export const getSeasonAverages = async (
   if (endYear) {
     endpointUrl += `&endYear=${endYear}`;
   }
-
   const getSeasonAveragesResponse = await fetch(endpointUrl);
-
   if (
     getSeasonAveragesResponse.status === 500 &&
     (await getSeasonAveragesResponse.text()) === "Too many balldontlie requests"
@@ -38,7 +36,6 @@ export const getSeasonAverages = async (
 
   const seasonAveragesWithName: ISeasonAveragesWithName =
     await getSeasonAveragesResponse.json();
-
   seasonAveragesWithName.seasonAverages = sortSeasonAveragesBySeasonDesc(
     seasonAveragesWithName.seasonAverages
   );

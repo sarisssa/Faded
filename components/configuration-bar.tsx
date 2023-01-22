@@ -9,7 +9,7 @@ interface ConfigurationBarProps {
 }
 
 export default function ConfigurationBar({
-  children,
+  children, //What is children?
   onPlayerSelect,
 }: ConfigurationBarProps) {
   const [allPlayers, setAllPlayers] = useState<IEssentialPlayerData[]>([]);
@@ -28,7 +28,7 @@ export default function ConfigurationBar({
   }, []);
 
   return (
-    <div className="flex justify-around md:flex-row flex-col">
+    <div className="flex justify-between items-start md:flex-row md:mx-20 mx-4 mt-8 flex-col">
       {!allPlayers.length && !isInErrorState && <p>Loading...</p>}
       {allPlayers.length && !isInErrorState && (
         <SearchBar onPlayerSelect={onPlayerSelect} allPlayers={allPlayers} />

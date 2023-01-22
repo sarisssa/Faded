@@ -53,7 +53,7 @@ export default function PlayerConfigurationBar({
   //useEffect without initial call
   useDidMountEffect(() => {
     const fetchNewSeasonAverages = async () => {
-      if (!router.query.id) return; //Purpose?
+      if (!router.query.id) return;
 
       const newPlayerIds = getPlayerIdsFromQuery([
         router.query.id,
@@ -87,12 +87,12 @@ export default function PlayerConfigurationBar({
 
   return (
     <ConfigurationBar>
-      <div className="flex justify-between">
+      <div className="flex justify-between gap-2 mr-4 w-full mt-6 md:mt-0 sm:w-auto">
         <FadedSelect
           defaultValue={startYear}
-          items={selectableYears.map((year) => [year, year])} //Explain syntax
+          items={selectableYears.map((year) => [year, year])}
           label="Start Year"
-          onChange={(value) => onStartYearChange?.(value as number)} //On change of year, confirm new fetch?
+          onChange={(value) => onStartYearChange?.(value as number)}
           isMenuItemDisabled={([curYear]) => curYear > endYear}
         />
         <FadedSelect
